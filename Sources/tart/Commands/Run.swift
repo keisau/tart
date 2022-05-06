@@ -27,6 +27,8 @@ struct Run: AsyncParsableCommand {
           discussion: "Useful since VNC supports copy/paste, drag and drop, etc.\nNote that Remote Login option should be enabled inside the VM.")) 
   var vnc: Bool = false
 
+  @Flag var withSoftnet: Bool = false
+
   @MainActor
   func run() async throws {
     if recovery && vnc {
@@ -35,7 +37,7 @@ struct Run: AsyncParsableCommand {
     }
     
     let vmDir = try VMStorageLocal().open(name)
-    vm = try VM(vmDir: vmDir)
+    vm = try VM(vmDir: vmDir, withSoftnet: withSoftnet)
 
     await withThrowingTaskGroup(of: Void.self) { group in
       if vnc {
