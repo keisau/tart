@@ -16,6 +16,7 @@ class VM: NSObject, VZVirtualMachineDelegate, ObservableObject {
 
   // Semaphore used to communicate with the VZVirtualMachineDelegate
   var sema = DispatchSemaphore(value: 0)
+  var ready = DispatchSemaphore(value: 0)
 
   // VM's config
   var name: String
@@ -135,6 +136,10 @@ class VM: NSObject, VZVirtualMachineDelegate, ObservableObject {
 
   func run(_ recovery: Bool) async throws {
     try await virtualMachine.start(recovery)
+    
+    DispatchQueue.global(qos: .userInteractive).sync {
+      ready.signal()
+    }
 
     await withTaskCancellationHandler(operation: {
       sema.wait()

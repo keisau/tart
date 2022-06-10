@@ -69,7 +69,14 @@ struct Run: AsyncParsableCommand {
           }
         })
       } else if !noGraphics {
-        runUI()
+        group.addTask(priority: .userInitiated, operation: {
+          DispatchQueue.global(qos: .userInteractive).sync {
+            vm!.ready.wait()
+          }
+          DispatchQueue.main.sync {
+            runUI()
+          }
+        })
       }
 
       try await group.waitForAll()
